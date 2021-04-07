@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -33,12 +34,15 @@ type Client interface {
 	GetUserQuotaScans() (UserQuotaScans, error)
 	StartUserQuotaScan(User User) error
 	GetActiveConnections() ([]ConnectionStatus, error)
+	TerminateActiveConnection(ConnectionID string) error
 }
 
 type client struct {
 	cli *gentleman.Client
 }
 
+// NewClient creates a new Client interface with the base URL and
+// uses the TokenProvider to manage JWT Authentication
 func NewClient(URL, Username, Password string) Client {
 	cli := gentleman.New()
 	cli.URL(URL)
@@ -126,6 +130,21 @@ func (c *client) StartUserQuotaScan(User User) error {
 	req.Method(`POST`)
 	req.Path(`/api/v2/quota-scans`)
 	req.JSON(&User)
+	resp, err := req.Do()
+	if err != nil {
+		return err
+	}
+	if resp.Ok {
+		return nil
+	}
+
+	return parseErrorResponse(resp)
+}
+
+func (c *client) TerminateActiveConnection(ConnectionID string) error {
+	req := c.cli.Request()
+	req.Method(`DELETE`)
+	req.Path(fmt.Sprintf(`/api/v2/connections/%s`, ConnectionID))
 	resp, err := req.Do()
 	if err != nil {
 		return err
