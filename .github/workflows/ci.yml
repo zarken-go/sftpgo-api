@@ -21,12 +21,12 @@ jobs:
       - name: Test
         run: go test -v -p 1 -timeout 10m ./... -coverprofile=coverage.txt -covermode=atomic
 
-#      - name: Upload coverage to Codecov
-#        uses: codecov/codecov-action@v1
-#        with:
-#          file: ./coverage.txt
-#          fail_ci_if_error: false
-#        if: github.ref == 'refs/heads/master'
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          file: ./coverage.txt
+          fail_ci_if_error: false
+        if: github.ref == 'refs/heads/master'
 
   golangci-lint:
     name: golangci-lint
