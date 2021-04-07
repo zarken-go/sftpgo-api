@@ -244,3 +244,15 @@ type UserQuotaScan struct {
 func (Scan UserQuotaScan) Time() time.Time {
 	return time.Unix(0, Scan.Start*1000000)
 }
+
+type UserFilterFunc func(user User) bool
+
+func (users Users) Filter(f UserFilterFunc) Users {
+	var Results Users
+	for _, User := range users {
+		if f(User) {
+			Results = append(Results, User)
+		}
+	}
+	return Results
+}
